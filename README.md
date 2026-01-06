@@ -14,6 +14,7 @@ A comprehensive guide to solving Data Structures and Algorithms problems in Pyth
 6. [GCD / HCF](#6-gcd--hcf-greatest-common-divisor)
 7. [Finding Factors](#7-finding-factors)
 8. [Store Frequency in Dictionary](#8-store-frequency-in-dictionary)
+9. [Recursion Basics](#9-recursion-basics)
 
 ---
 
@@ -999,6 +1000,188 @@ print(freq)  # Counter({2: 3, 1: 2, 3: 1})
 
 ---
 
+## 9. Recursion Basics
+
+**Concept:** A function that calls itself to solve smaller subproblems until it reaches a base case.
+
+**File:** `recursionstart.py`
+
+### What is Recursion?
+
+Recursion breaks a problem into:
+1. **Base Case** - The stopping condition (prevents infinite recursion)
+2. **Recursive Case** - The function calls itself with a smaller/simpler input
+
+---
+
+### Example 1: Infinite Recursion (BAD)
+
+```python
+def f(n):
+    if n == 0:
+        return 0
+    return f(n + 1)  # moves away from 0
+f(5)
+```
+
+**Problem:** Starting from 5, it goes 5 -> 6 -> 7 -> ... (never reaches 0)
+
+**Result:** Stack overflow / RecursionError
+
+**Why it fails:**
+- Base case is `n == 0`
+- But `n + 1` moves AWAY from 0, not towards it
+
+---
+
+### Example 2: Finite Recursion (GOOD)
+
+```python
+def countdown(n):
+    if n == 0:
+        return
+    print(n)
+    countdown(n - 1)
+countdown(5)
+```
+
+**Output:**
+```
+5
+4
+3
+2
+1
+```
+
+**Why it works:**
+- Base case: `n == 0` (stop when we reach 0)
+- Recursive case: `countdown(n - 1)` moves TOWARDS base case
+
+#### Call Stack Visualization
+
+```
+countdown(5)  --> prints 5, calls countdown(4)
+  countdown(4)  --> prints 4, calls countdown(3)
+    countdown(3)  --> prints 3, calls countdown(2)
+      countdown(2)  --> prints 2, calls countdown(1)
+        countdown(1)  --> prints 1, calls countdown(0)
+          countdown(0)  --> base case, returns
+        returns
+      returns
+    returns
+  returns
+returns
+```
+
+---
+
+### Example 3: Factorial (Classic Recursion)
+
+**Problem:** Calculate n! = n x (n-1) x (n-2) x ... x 1
+
+**Mathematical Definition:**
+- 0! = 1 (base case)
+- 1! = 1 (base case)
+- n! = n x (n-1)! (recursive case)
+
+#### Pseudocode
+
+```
+FUNCTION factorial(n):
+    IF n < 0:
+        ERROR "Factorial not defined for negative numbers"
+    IF n == 0 OR n == 1:
+        RETURN 1                   # Base case
+    RETURN n * factorial(n - 1)    # Recursive case
+```
+
+#### Code Explanation
+
+```python
+def factorial(n: int) -> int:
+    if n < 0:
+        raise ValueError("Factorial is not defined for negative numbers.")
+    if n == 0 or n == 1:
+        return 1
+    return n * factorial(n - 1)
+```
+- **Type hints:** `n: int` input, `-> int` return type
+- **Error handling:** Negative numbers raise ValueError
+- **Base case:** 0! = 1! = 1
+- **Recursive case:** n! = n * (n-1)!
+
+```python
+n = int(input("Enter n: "))
+print("Factorial:", factorial(n))
+```
+
+#### Dry Run
+
+**Input:** factorial(5)
+
+| Call | n | Base Case? | Returns |
+|------|---|------------|----------|
+| factorial(5) | 5 | No | 5 * factorial(4) |
+| factorial(4) | 4 | No | 4 * factorial(3) |
+| factorial(3) | 3 | No | 3 * factorial(2) |
+| factorial(2) | 2 | No | 2 * factorial(1) |
+| factorial(1) | 1 | Yes | 1 |
+
+**Unwinding the stack:**
+
+```
+factorial(1) = 1
+factorial(2) = 2 * 1 = 2
+factorial(3) = 3 * 2 = 6
+factorial(4) = 4 * 6 = 24
+factorial(5) = 5 * 24 = 120
+```
+
+**Output:** 120
+
+#### Call Stack Diagram
+
+```
+[factorial(5)]  waiting for factorial(4)
+  [factorial(4)]  waiting for factorial(3)
+    [factorial(3)]  waiting for factorial(2)
+      [factorial(2)]  waiting for factorial(1)
+        [factorial(1)]  returns 1
+      returns 2 * 1 = 2
+    returns 3 * 2 = 6
+  returns 4 * 6 = 24
+returns 5 * 24 = 120
+```
+
+### Time & Space Complexity
+
+| Example | Time | Space (Call Stack) |
+|---------|------|--------------------|
+| Countdown | O(n) | O(n) |
+| Factorial | O(n) | O(n) |
+
+**Note:** Each recursive call adds a frame to the call stack, so space is O(n).
+
+### Key Rules for Recursion
+
+| Rule | Description |
+|------|-------------|
+| 1. Base Case | Always have a stopping condition |
+| 2. Progress | Each call must move towards base case |
+| 3. Trust | Assume recursive call works correctly |
+| 4. Stack Limit | Python default is ~1000 recursive calls |
+
+### Common Mistakes
+
+| Mistake | Problem | Fix |
+|---------|---------|-----|
+| No base case | Infinite recursion | Add stopping condition |
+| Wrong direction | Never reaches base | Ensure progress towards base |
+| Base case too late | Stack overflow | Check base case first |
+
+---
+
 ## Key Patterns Summary
 
 | Operation | Code | Purpose |
@@ -1021,6 +1204,7 @@ print(freq)  # Counter({2: 3, 1: 2, 3: 1})
 6. [x] Find GCD/HCF of two numbers
 7. [x] Find factors of a number
 8. [x] Store frequency in dictionary
+9. [x] Recursion basics (factorial, countdown)
 
 ---
 

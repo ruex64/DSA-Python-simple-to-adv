@@ -12,6 +12,8 @@ A comprehensive guide to solving Data Structures and Algorithms problems in Pyth
 4. [Armstrong Number](#4-armstrong-number)
 5. [Sum of Digits](#5-sum-of-digits)
 6. [GCD / HCF](#6-gcd--hcf-greatest-common-divisor)
+7. [Finding Factors](#7-finding-factors)
+8. [Store Frequency in Dictionary](#8-store-frequency-in-dictionary)
 
 ---
 
@@ -642,6 +644,361 @@ lcm = (a * b) // gcd_value
 
 ---
 
+## 7. Finding Factors
+
+**Problem:** Find all factors (divisors) of a given number.
+
+**Example:** Factors of 12 = [1, 2, 3, 4, 6, 12]
+
+**Files:** `findingfactorsO(n).py`, `findingfactorsO(sqrt n).py`
+
+### Approach 1: Brute Force - O(n)
+
+Check every number from 1 to n/2, then add n itself.
+
+#### Pseudocode
+
+```
+FUNCTION findFactors_BruteForce(num):
+    IF num == 0:
+        PRINT "0 has infinitely many factors"
+        RETURN
+    
+    n = |num|
+    factors = []
+    
+    FOR i = 1 TO n/2:
+        IF n MOD i == 0:
+            factors.append(i)
+    
+    factors.append(n)              # Include the number itself
+    RETURN factors
+```
+
+#### Code Explanation (O(n))
+
+```python
+num = int(input("Enter number: "))
+
+if num == 0:
+    print("0 has infinitely many factors (every non-zero integer divides 0).")
+```
+- Take input and handle special case: 0 is divisible by everything
+
+```python
+else:
+    n = abs(num)
+    factors = []
+
+    for i in range(1, n // 2 + 1):
+        if n % i == 0:
+            factors.append(i)
+```
+- Use `abs()` to handle negative numbers
+- Loop from 1 to n/2 (no factor other than n itself can be > n/2)
+- If `i` divides `n` evenly, it's a factor
+
+```python
+    factors.append(n)  # include the number itself
+    print("Factors:", factors)
+```
+- Always add n as a factor (n divides itself)
+
+#### Dry Run (O(n))
+
+**Input:** 12
+
+| i | 12 % i | Factor? | factors |
+|---|--------|---------|----------|
+| 1 | 0 | Yes | [1] |
+| 2 | 0 | Yes | [1, 2] |
+| 3 | 0 | Yes | [1, 2, 3] |
+| 4 | 0 | Yes | [1, 2, 3, 4] |
+| 5 | 2 | No | [1, 2, 3, 4] |
+| 6 | 0 | Yes | [1, 2, 3, 4, 6] |
+| End | - | Add n | [1, 2, 3, 4, 6, 12] |
+
+**Output:** Factors: [1, 2, 3, 4, 6, 12]
+
+#### Time & Space Complexity (O(n))
+
+- **Time:** O(n) - loops through n/2 iterations
+- **Space:** O(k) where k = number of factors
+
+---
+
+### Approach 2: Optimized - O(sqrt n)
+
+Factors come in pairs. If `i` is a factor, then `n/i` is also a factor. Only need to check up to sqrt(n).
+
+#### Key Insight
+
+For n = 36:
+- 1 x 36
+- 2 x 18
+- 3 x 12
+- 4 x 9
+- 6 x 6 (sqrt)
+
+After sqrt(n), factors repeat in reverse!
+
+#### Pseudocode
+
+```
+FUNCTION findFactors_Optimized(num):
+    IF num == 0:
+        PRINT "0 has infinitely many factors"
+        RETURN
+    
+    n = |num|
+    small = []                     # Factors <= sqrt(n)
+    large = []                     # Factors > sqrt(n)
+    
+    i = 1
+    WHILE i * i <= n:
+        IF n MOD i == 0:
+            small.append(i)
+            IF i != n / i:         # Avoid duplicate for perfect squares
+                large.append(n / i)
+        i = i + 1
+    
+    factors = small + reverse(large)
+    RETURN factors
+```
+
+#### Code Explanation (O(sqrt n))
+
+```python
+num = int(input("Enter number: "))
+
+if num == 0:
+    print("0 has infinitely many factors (every non-zero integer divides 0).")
+```
+- Handle the special case for 0
+
+```python
+else:
+    n = abs(num)
+    small = []
+    large = []
+```
+- Two lists: `small` for factors <= sqrt(n), `large` for factors > sqrt(n)
+
+```python
+    i = 1
+    while i * i <= n:
+        if n % i == 0:
+            small.append(i)
+            if i != n // i:
+                large.append(n // i)
+        i += 1
+```
+- **`i * i <= n`:** Loop only until sqrt(n)
+- If `i` is a factor, so is `n // i` (the pair)
+- **`if i != n // i`:** Avoid adding sqrt(n) twice for perfect squares
+
+```python
+    factors = small + large[::-1]
+    print("Factors:", factors)
+```
+- Reverse `large` and concatenate to get sorted order
+
+#### Dry Run (O(sqrt n))
+
+**Input:** 36
+
+| i | i*i | i*i <= 36? | 36 % i | Factor? | Pair (36/i) | small | large |
+|---|-----|------------|--------|---------|-------------|-------|-------|
+| 1 | 1 | Yes | 0 | Yes | 36 | [1] | [36] |
+| 2 | 4 | Yes | 0 | Yes | 18 | [1,2] | [36,18] |
+| 3 | 9 | Yes | 0 | Yes | 12 | [1,2,3] | [36,18,12] |
+| 4 | 16 | Yes | 0 | Yes | 9 | [1,2,3,4] | [36,18,12,9] |
+| 5 | 25 | Yes | 1 | No | - | [1,2,3,4] | [36,18,12,9] |
+| 6 | 36 | Yes | 0 | Yes | 6 (skip!) | [1,2,3,4,6] | [36,18,12,9] |
+| 7 | 49 | No | - | Exit | - | - | - |
+
+**Merge:** small + large[::-1] = [1,2,3,4,6] + [9,12,18,36] = [1,2,3,4,6,9,12,18,36]
+
+**Output:** Factors: [1, 2, 3, 4, 6, 9, 12, 18, 36]
+
+#### Time & Space Complexity (O(sqrt n))
+
+- **Time:** O(sqrt n) - loops only until sqrt(n)
+- **Space:** O(k) where k = number of factors
+
+---
+
+### Comparison
+
+| Approach | Time | When to Use |
+|----------|------|-------------|
+| O(n) | O(n) | Small numbers, simpler code |
+| O(sqrt n) | O(sqrt n) | Large numbers, optimized |
+
+**Performance Example:**
+- n = 1,000,000
+- O(n): ~500,000 iterations
+- O(sqrt n): ~1,000 iterations (500x faster!)
+
+---
+
+## 8. Store Frequency in Dictionary
+
+**Problem:** Count the frequency (occurrences) of each element in a list/array and store it in a dictionary.
+
+**Example:** [1, 2, 2, 3, 1, 2] -> {1: 2, 2: 3, 3: 1}
+
+**File:** `storeFrequencyinDictionary.py`
+
+### Approach 1: Using if-else
+
+Check if element exists in dictionary, increment if yes, otherwise initialize to 1.
+
+#### Pseudocode
+
+```
+FUNCTION countFrequency_IfElse(data):
+    freq = {}
+    
+    FOR each x IN data:
+        IF x IN freq:
+            freq[x] = freq[x] + 1
+        ELSE:
+            freq[x] = 1
+    
+    RETURN freq
+```
+
+#### Code Explanation
+
+```python
+data = [1, 2, 2, 3, 1, 2]
+freq = {}
+```
+- Input list/array of elements
+- Initialize empty dictionary to store frequencies
+
+```python
+for x in data:
+    if x in freq:
+        freq[x] += 1
+    else:
+        freq[x] = 1
+```
+- Loop through each element in data
+- **`if x in freq`:** Check if key already exists
+- If exists: increment the count
+- If not: initialize count to 1
+
+```python
+print(freq)  # {1: 2, 2: 3, 3: 1}
+```
+- Output: dictionary with element as key, frequency as value
+
+#### Dry Run
+
+**Input:** [1, 2, 2, 3, 1, 2]
+
+| Step | x | x in freq? | Action | freq |
+|------|---|------------|--------|------|
+| 1 | 1 | No | freq[1] = 1 | {1: 1} |
+| 2 | 2 | No | freq[2] = 1 | {1: 1, 2: 1} |
+| 3 | 2 | Yes | freq[2] += 1 | {1: 1, 2: 2} |
+| 4 | 3 | No | freq[3] = 1 | {1: 1, 2: 2, 3: 1} |
+| 5 | 1 | Yes | freq[1] += 1 | {1: 2, 2: 2, 3: 1} |
+| 6 | 2 | Yes | freq[2] += 1 | {1: 2, 2: 3, 3: 1} |
+
+**Output:** {1: 2, 2: 3, 3: 1}
+
+---
+
+### Approach 2: Using dict.get()
+
+Use the `get()` method which returns a default value if key doesn't exist.
+
+#### Pseudocode
+
+```
+FUNCTION countFrequency_Get(data):
+    freq = {}
+    
+    FOR each x IN data:
+        freq[x] = freq.get(x, 0) + 1
+    
+    RETURN freq
+```
+
+#### Code Explanation
+
+```python
+data = [1, 2, 2, 3, 1, 2]
+freq = {}
+```
+- Same setup as before
+
+```python
+for x in data:
+    freq[x] = freq.get(x, 0) + 1
+```
+- **`freq.get(x, 0)`:** Returns freq[x] if exists, otherwise returns 0
+- Add 1 to the returned value and assign back
+- Single line replaces the entire if-else block!
+
+```python
+print(freq)
+```
+- Same output: {1: 2, 2: 3, 3: 1}
+
+#### How dict.get() Works
+
+| Expression | x exists? | Returns |
+|------------|-----------|----------|
+| freq.get(x, 0) | Yes | freq[x] (current count) |
+| freq.get(x, 0) | No | 0 (default value) |
+
+#### Dry Run
+
+**Input:** [1, 2, 2, 3, 1, 2]
+
+| Step | x | freq.get(x, 0) | + 1 | freq |
+|------|---|----------------|-----|------|
+| 1 | 1 | 0 (not found) | 1 | {1: 1} |
+| 2 | 2 | 0 (not found) | 1 | {1: 1, 2: 1} |
+| 3 | 2 | 1 | 2 | {1: 1, 2: 2} |
+| 4 | 3 | 0 (not found) | 1 | {1: 1, 2: 2, 3: 1} |
+| 5 | 1 | 1 | 2 | {1: 2, 2: 2, 3: 1} |
+| 6 | 2 | 2 | 3 | {1: 2, 2: 3, 3: 1} |
+
+**Output:** {1: 2, 2: 3, 3: 1}
+
+---
+
+### Time & Space Complexity
+
+- **Time:** O(n) where n = length of input list
+- **Space:** O(k) where k = number of unique elements
+
+### Comparison
+
+| Approach | Lines | Readability | Performance |
+|----------|-------|-------------|-------------|
+| if-else | 4 | More explicit | Same |
+| dict.get() | 1 | More Pythonic | Same |
+
+### Alternative: Using collections.Counter
+
+```python
+from collections import Counter
+
+data = [1, 2, 2, 3, 1, 2]
+freq = Counter(data)
+print(freq)  # Counter({2: 3, 1: 2, 3: 1})
+```
+- Built-in Python module for counting
+- Most concise, but less educational
+
+---
+
 ## Key Patterns Summary
 
 | Operation | Code | Purpose |
@@ -662,7 +1019,9 @@ lcm = (a * b) // gcd_value
 4. [x] Check if number is Armstrong number
 5. [x] Find sum of digits
 6. [x] Find GCD/HCF of two numbers
+7. [x] Find factors of a number
+8. [x] Store frequency in dictionary
 
 ---
 
-*Last Updated: January 4, 2026*
+*Last Updated: January 6, 2026*

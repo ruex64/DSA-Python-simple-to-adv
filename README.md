@@ -15,6 +15,7 @@ A comprehensive guide to solving Data Structures and Algorithms problems in Pyth
 7. [Finding Factors](#7-finding-factors)
 8. [Store Frequency in Dictionary](#8-store-frequency-in-dictionary)
 9. [Recursion Basics](#9-recursion-basics)
+10. [Fibonacci](#10-fibonacci)
 
 ---
 
@@ -1182,6 +1183,196 @@ returns 5 * 24 = 120
 
 ---
 
+## 10. Fibonacci
+
+**Problem:** Find the nth Fibonacci number.
+
+**Sequence:** 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ...
+
+**Definition:** F(n) = F(n-1) + F(n-2), where F(0) = 0 and F(1) = 1
+
+**File:** `fibonacci.py`
+
+---
+
+### Approach 1: Naive Recursion - O(2^n)
+
+Direct implementation of the mathematical definition.
+
+#### Pseudocode
+
+```
+FUNCTION fib(n):
+    IF n < 0:
+        ERROR "n must be non-negative"
+    IF n == 0:
+        RETURN 0
+    IF n == 1:
+        RETURN 1
+    RETURN fib(n - 1) + fib(n - 2)
+```
+
+#### Code Explanation
+
+```python
+def fib(n: int) -> int:
+    if n < 0:
+        raise ValueError("n must be non-negative")
+    if n == 0:
+        return 0
+    if n == 1:
+        return 1
+    return fib(n - 1) + fib(n - 2)
+```
+- **Base cases:** F(0) = 0, F(1) = 1
+- **Recursive case:** F(n) = F(n-1) + F(n-2)
+- Simple but very inefficient!
+
+#### Call Tree for fib(5)
+
+```
+                    fib(5)
+                   /      \
+              fib(4)        fib(3)
+             /     \        /     \
+         fib(3)   fib(2)  fib(2)  fib(1)
+         /   \     /   \   /   \
+      fib(2) fib(1) fib(1) fib(0) fib(1) fib(0)
+      /   \
+   fib(1) fib(0)
+```
+
+**Problem:** Same values computed multiple times!
+- fib(3) computed 2 times
+- fib(2) computed 3 times
+- fib(1) computed 5 times
+- fib(0) computed 3 times
+
+#### Time & Space Complexity (Naive)
+
+- **Time:** O(2^n) - exponential (very slow!)
+- **Space:** O(n) - call stack depth
+
+---
+
+### Approach 2: Memoization - O(n)
+
+Store computed results to avoid redundant calculations.
+
+#### Pseudocode
+
+```
+FUNCTION fib(n, memo):
+    IF n < 0:
+        ERROR "n must be non-negative"
+    IF memo is None:
+        memo = {}
+    IF n IN memo:
+        RETURN memo[n]             # Return cached result
+    IF n == 0:
+        RETURN 0
+    IF n == 1:
+        RETURN 1
+    memo[n] = fib(n - 1, memo) + fib(n - 2, memo)
+    RETURN memo[n]
+```
+
+#### Code Explanation
+
+```python
+def fib(n: int, memo=None) -> int:
+    if n < 0:
+        raise ValueError("n must be non-negative")
+    if memo is None:
+        memo = {}
+```
+- Initialize memo dictionary on first call
+- Using `memo=None` instead of `memo={}` avoids mutable default argument bug
+
+```python
+    if n in memo:
+        return memo[n]
+```
+- **Key optimization:** If already computed, return cached result immediately
+
+```python
+    if n == 0:
+        return 0
+    if n == 1:
+        return 1
+```
+- Base cases same as before
+
+```python
+    memo[n] = fib(n - 1, memo) + fib(n - 2, memo)
+    return memo[n]
+```
+- Compute result, store in memo, then return
+- Pass memo to recursive calls so they share the cache
+
+```python
+n = int(input("Enter n: "))
+print("Fibonacci:", fib(n))
+```
+
+#### Dry Run with Memoization
+
+**Input:** fib(5)
+
+| Call | n | memo before | Action | memo after |
+|------|---|-------------|--------|------------|
+| fib(5) | 5 | {} | Compute | - |
+| fib(4) | 4 | {} | Compute | - |
+| fib(3) | 3 | {} | Compute | - |
+| fib(2) | 2 | {} | Compute | - |
+| fib(1) | 1 | {} | Base case | {} |
+| fib(0) | 0 | {} | Base case | {} |
+| Return | 2 | - | 1+0=1 | {2: 1} |
+| fib(1) | 1 | {2: 1} | Base case | {2: 1} |
+| Return | 3 | - | 1+1=2 | {2: 1, 3: 2} |
+| fib(2) | 2 | {2: 1, 3: 2} | **Cache hit!** | {2: 1, 3: 2} |
+| Return | 4 | - | 2+1=3 | {2: 1, 3: 2, 4: 3} |
+| fib(3) | 3 | {2: 1, 3: 2, 4: 3} | **Cache hit!** | - |
+| Return | 5 | - | 3+2=5 | {2: 1, 3: 2, 4: 3, 5: 5} |
+
+**Output:** 5
+
+#### Time & Space Complexity (Memoization)
+
+- **Time:** O(n) - each value computed only once
+- **Space:** O(n) - memo dictionary + call stack
+
+---
+
+### Comparison
+
+| Approach | Time | Space | fib(40) Speed |
+|----------|------|-------|---------------|
+| Naive | O(2^n) | O(n) | ~40 seconds |
+| Memoization | O(n) | O(n) | < 1 ms |
+
+**Why memoization is faster:**
+- Naive: ~2^40 = 1 trillion operations
+- Memoization: ~40 operations
+
+### Fibonacci Reference Table
+
+| n | F(n) |
+|---|------|
+| 0 | 0 |
+| 1 | 1 |
+| 2 | 1 |
+| 3 | 2 |
+| 4 | 3 |
+| 5 | 5 |
+| 6 | 8 |
+| 7 | 13 |
+| 8 | 21 |
+| 9 | 34 |
+| 10 | 55 |
+
+---
+
 ## Key Patterns Summary
 
 | Operation | Code | Purpose |
@@ -1205,6 +1396,7 @@ returns 5 * 24 = 120
 7. [x] Find factors of a number
 8. [x] Store frequency in dictionary
 9. [x] Recursion basics (factorial, countdown)
+10. [x] Fibonacci (naive + memoization)
 
 ---
 

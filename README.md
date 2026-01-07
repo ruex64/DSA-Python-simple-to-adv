@@ -16,6 +16,8 @@ A comprehensive guide to solving Data Structures and Algorithms problems in Pyth
 8. [Store Frequency in Dictionary](#8-store-frequency-in-dictionary)
 9. [Recursion Basics](#9-recursion-basics)
 10. [Fibonacci](#10-fibonacci)
+11. [Sum of Digits (Recursion)](#11-sum-of-digits-recursion)
+12. [GCD - Euclidean (Recursion)](#12-gcd---euclidean-recursion)
 
 ---
 
@@ -1373,6 +1375,169 @@ print("Fibonacci:", fib(n))
 
 ---
 
+## 11. Sum of Digits (Recursion)
+
+**Problem:** Find the sum of all digits in a number using recursion.
+
+**Example:** 1234 -> 1 + 2 + 3 + 4 = 10
+
+**File:** `sumofdigitsrecrusion.py`
+
+### Approach
+
+Recursively extract the last digit and add it to the sum of remaining digits.
+
+### Pseudocode
+
+```
+FUNCTION sum_digits(n):
+    n = |n|                        # Handle negatives
+    IF n == 0:
+        RETURN 0                   # Base case
+    RETURN (n MOD 10) + sum_digits(n DIV 10)
+```
+
+### Code Explanation
+
+```python
+def sum_digits(n: int) -> int:
+    n = abs(n)
+    if n == 0:
+        return 0
+    return (n % 10) + sum_digits(n // 10)
+```
+- **`abs(n)`:** Handle negative numbers
+- **Base case:** When n becomes 0, return 0
+- **Recursive case:** Last digit + sum of remaining digits
+
+```python
+n = int(input("Enter number: "))
+print("Sum of digits:", sum_digits(n))
+```
+
+### Dry Run
+
+**Input:** sum_digits(1234)
+
+| Call | n | n % 10 | n // 10 | Returns |
+|------|---|--------|---------|----------|
+| sum_digits(1234) | 1234 | 4 | 123 | 4 + sum_digits(123) |
+| sum_digits(123) | 123 | 3 | 12 | 3 + sum_digits(12) |
+| sum_digits(12) | 12 | 2 | 1 | 2 + sum_digits(1) |
+| sum_digits(1) | 1 | 1 | 0 | 1 + sum_digits(0) |
+| sum_digits(0) | 0 | - | - | 0 (base case) |
+
+**Unwinding:**
+```
+sum_digits(0) = 0
+sum_digits(1) = 1 + 0 = 1
+sum_digits(12) = 2 + 1 = 3
+sum_digits(123) = 3 + 3 = 6
+sum_digits(1234) = 4 + 6 = 10
+```
+
+**Output:** 10
+
+### Time & Space Complexity
+
+- **Time:** O(n) where n = number of digits
+- **Space:** O(n) - recursive call stack
+
+### Iterative vs Recursive Comparison
+
+| Approach | File | Space | Style |
+|----------|------|-------|-------|
+| Iterative | `sum of digits.py` | O(1) | Loop-based |
+| Recursive | `sumofdigitsrecrusion.py` | O(n) | Function calls |
+
+---
+
+## 12. GCD - Euclidean (Recursion)
+
+**Problem:** Find the GCD of two numbers using recursive Euclidean algorithm.
+
+**Example:** GCD(48, 18) = 6
+
+**File:** `gcd-euclid-recursion.py`
+
+### Approach
+
+Recursively apply: GCD(a, b) = GCD(b, a % b) until b becomes 0.
+
+### Pseudocode
+
+```
+FUNCTION gcd(a, b):
+    a = |a|
+    b = |b|
+    IF b == 0:
+        RETURN a                   # Base case
+    RETURN gcd(b, a MOD b)         # Recursive case
+```
+
+### Code Explanation
+
+```python
+def gcd(a: int, b: int) -> int:
+    a = abs(a)
+    b = abs(b)
+    if b == 0:
+        return a
+    return gcd(b, a % b)
+```
+- **`abs()`:** GCD is always positive
+- **Base case:** When b is 0, GCD is a
+- **Recursive case:** GCD(a, b) = GCD(b, a % b)
+
+```python
+a = int(input("Enter a: "))
+b = int(input("Enter b: "))
+print("GCD:", gcd(a, b))
+```
+
+### Dry Run
+
+**Input:** gcd(48, 18)
+
+| Call | a | b | a % b | Returns |
+|------|---|---|-------|----------|
+| gcd(48, 18) | 48 | 18 | 12 | gcd(18, 12) |
+| gcd(18, 12) | 18 | 12 | 6 | gcd(12, 6) |
+| gcd(12, 6) | 12 | 6 | 0 | gcd(6, 0) |
+| gcd(6, 0) | 6 | 0 | - | 6 (base case) |
+
+**Unwinding:**
+```
+gcd(6, 0) = 6
+gcd(12, 6) = 6
+gcd(18, 12) = 6
+gcd(48, 18) = 6
+```
+
+**Output:** 6
+
+### Time & Space Complexity
+
+- **Time:** O(log(min(a, b)))
+- **Space:** O(log(min(a, b))) - recursive call stack
+
+### Iterative vs Recursive Comparison
+
+| Approach | File | Space | Style |
+|----------|------|-------|-------|
+| Iterative | `gcd-hcf.py` | O(1) | While loop |
+| Recursive | `gcd-euclid-recursion.py` | O(log n) | Function calls |
+
+### Why Recursion Here?
+
+The recursive version directly mirrors the mathematical definition:
+- GCD(a, 0) = a
+- GCD(a, b) = GCD(b, a mod b)
+
+This makes it elegant and easy to understand!
+
+---
+
 ## Key Patterns Summary
 
 | Operation | Code | Purpose |
@@ -1397,7 +1562,9 @@ print("Fibonacci:", fib(n))
 8. [x] Store frequency in dictionary
 9. [x] Recursion basics (factorial, countdown)
 10. [x] Fibonacci (naive + memoization)
+11. [x] Sum of digits (recursion)
+12. [x] GCD - Euclidean (recursion)
 
 ---
 
-*Last Updated: January 6, 2026*
+*Last Updated: January 7, 2026*

@@ -18,6 +18,7 @@ A comprehensive guide to solving Data Structures and Algorithms problems in Pyth
 10. [Fibonacci](#10-fibonacci)
 11. [Sum of Digits (Recursion)](#11-sum-of-digits-recursion)
 12. [GCD - Euclidean (Recursion)](#12-gcd---euclidean-recursion)
+13. [Reverse Array (Recursion)](#13-reverse-array-recursion)
 
 ---
 
@@ -1538,6 +1539,156 @@ This makes it elegant and easy to understand!
 
 ---
 
+## 13. Reverse Array (Recursion)
+
+**Problem:** Reverse an array/list using recursion.
+
+**Example:** [1, 2, 3, 4, 5] -> [5, 4, 3, 2, 1]
+
+**File:** `reverse array using recursion.py`
+
+---
+
+### Approach 1: In-Place Reversal (Two Pointers)
+
+Swap elements from both ends, moving towards the center. Best for DSA - no extra memory!
+
+#### Pseudocode
+
+```
+FUNCTION reverse_inplace(arr, l, r):
+    IF r is None:
+        r = length(arr) - 1
+    
+    IF l >= r:
+        RETURN                     # Base case: pointers crossed
+    
+    SWAP arr[l] and arr[r]         # Swap outer elements
+    reverse_inplace(arr, l + 1, r - 1)  # Move inward
+```
+
+#### Code Explanation
+
+```python
+def reverse_inplace(arr, l=0, r=None):
+    if r is None:
+        r = len(arr) - 1
+```
+- **Default parameters:** Start with l=0, r=last index
+- `r=None` pattern avoids recalculating length on every call
+
+```python
+    if l >= r:
+        return
+```
+- **Base case:** When pointers meet or cross, array is reversed
+
+```python
+    arr[l], arr[r] = arr[r], arr[l]
+    reverse_inplace(arr, l + 1, r - 1)
+```
+- **Swap:** Exchange elements at left and right pointers
+- **Recurse:** Move pointers inward (l+1, r-1)
+
+```python
+a = [1, 2, 3, 4, 5]
+reverse_inplace(a)
+print(a)  # [5, 4, 3, 2, 1]
+```
+- Modifies the original array (in-place)
+
+#### Dry Run
+
+**Input:** [1, 2, 3, 4, 5]
+
+| Call | l | r | l >= r? | Swap | Array After |
+|------|---|---|---------|------|-------------|
+| 1 | 0 | 4 | No | arr[0] <-> arr[4] | [5, 2, 3, 4, 1] |
+| 2 | 1 | 3 | No | arr[1] <-> arr[3] | [5, 4, 3, 2, 1] |
+| 3 | 2 | 2 | Yes | - | Return (base case) |
+
+**Output:** [5, 4, 3, 2, 1]
+
+#### Time & Space Complexity
+
+- **Time:** O(n) - visits each element once
+- **Space:** O(n/2) = O(n) - recursive call stack
+
+---
+
+### Approach 2: Return New Reversed Array
+
+Simpler logic but creates a new array (extra memory).
+
+#### Pseudocode
+
+```
+FUNCTION reversed_copy(arr, i):
+    IF i == length(arr):
+        RETURN []                  # Base case: empty array
+    RETURN reversed_copy(arr, i + 1) + [arr[i]]
+```
+
+#### Code Explanation
+
+```python
+def reversed_copy(arr, i=0):
+    if i == len(arr):
+        return []
+    return reversed_copy(arr, i + 1) + [arr[i]]
+```
+- **Base case:** When index reaches array length, return empty list
+- **Recursive case:** Reverse rest of array, then append current element
+- Elements get added in reverse order during unwinding!
+
+```python
+print(reversed_copy([10, 20, 30]))  # [30, 20, 10]
+```
+
+#### Dry Run
+
+**Input:** reversed_copy([10, 20, 30])
+
+| Call | i | arr[i] | Returns |
+|------|---|--------|----------|
+| reversed_copy([...], 0) | 0 | 10 | reversed_copy(..., 1) + [10] |
+| reversed_copy([...], 1) | 1 | 20 | reversed_copy(..., 2) + [20] |
+| reversed_copy([...], 2) | 2 | 30 | reversed_copy(..., 3) + [30] |
+| reversed_copy([...], 3) | 3 | - | [] (base case) |
+
+**Unwinding:**
+```
+reversed_copy(..., 3) = []
+reversed_copy(..., 2) = [] + [30] = [30]
+reversed_copy(..., 1) = [30] + [20] = [30, 20]
+reversed_copy(..., 0) = [30, 20] + [10] = [30, 20, 10]
+```
+
+**Output:** [30, 20, 10]
+
+#### Time & Space Complexity
+
+- **Time:** O(n^2) - list concatenation is O(n) each time
+- **Space:** O(n) - new array + call stack
+
+---
+
+### Comparison
+
+| Approach | Modifies Original | Extra Memory | Time | Best For |
+|----------|-------------------|--------------|------|----------|
+| In-Place | Yes | O(1)* | O(n) | DSA interviews |
+| New Copy | No | O(n) | O(n^2) | When original needed |
+
+*O(1) extra memory (excluding call stack)
+
+### Which to Use?
+
+- **In-place:** When you don't need the original array (most DSA problems)
+- **New copy:** When you need to keep the original array intact
+
+---
+
 ## Key Patterns Summary
 
 | Operation | Code | Purpose |
@@ -1564,7 +1715,8 @@ This makes it elegant and easy to understand!
 10. [x] Fibonacci (naive + memoization)
 11. [x] Sum of digits (recursion)
 12. [x] GCD - Euclidean (recursion)
+13. [x] Reverse array (recursion)
 
 ---
 
-*Last Updated: January 7, 2026*
+*Last Updated: January 8, 2026*
